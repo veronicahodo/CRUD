@@ -10,9 +10,22 @@
 // even this was based off some code I got out of chatGPT
 
 class CRUD {
+	// We hang on to our SQL connection, so we do don't have to 
+	// do as I did in the past and pass the db connection. I'm
+	// sure there is an arguement for the latter but I'm lazy
 	private $connection;
 
+	
 	private function connect($dbUser,$dbPass,$dbHost,$dbName) {
+		// This function does all our connection work.
+		// Expected: 
+		//		$dbUser = username of the mysql/mariadb user
+		//		$dbPass = password of the mysql/mariadb user
+		//		$dbHost = FQDN for the mysql/mariadb host
+		//		$dbName = name of the database on the server
+		//
+		// Returns:
+		//		Nothing.
 		$dsn = "mysql:host=".$dbHost.";dbname=".$dbName;
 		// needs to be in a try [TODO]
 		$this->connection = new PDO($dsn,$dbUser,$dbPass);
@@ -74,7 +87,7 @@ class CRUD {
 		foreach ($columns as $column) {
 			$frames[] = $column . "=:" . $column;
 		}
-		$sql = "UPDATE `".$table."` SET (".implode(',',$frames).") WHERE (".implode(',','$strConditions).") LIMIT 20000";
+		$sql = "UPDATE `".$table."` SET (".implode(',',$frames).") WHERE (".implode(',',$strConditions).") LIMIT 20000";
 		
 		$stmt = $this->connection->prepare($sql)->$execute($fields);
 		
