@@ -100,4 +100,9 @@ class CRUD {
 		
 		$stmt = $this->connection->prepare($sql)->execute();
 	}
+
+
+	function close() {
+		$this->connection->close();
+	}
 }
