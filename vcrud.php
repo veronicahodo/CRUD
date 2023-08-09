@@ -37,7 +37,7 @@ class CRUD
 
 	public function create($table, $fields)
 	{
-		$columns = $this->getColumnArray($fields);
+		$columns = array_keys($fields);
 		$sql = "INSERT INTO `" . $table . "` (" . implode(',', $columns) . ") VALUES (:" . implode(',:', $columns) . ")";
 		$stmt = $this->connection->prepare($sql);
 		$stmt->execute($fields);
@@ -60,7 +60,7 @@ class CRUD
 	public function update($table, $fields, $conditions)
 	{
 		$strConditions = $this->conditionsToStrings($conditions);
-		$columns = $this->getColumnArray($fields);
+		$columns = array_keys($fields);
 		$frames = [];
 		foreach ($columns as $column) {
 			$frames[] = $column . "=:" . $column;
