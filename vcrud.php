@@ -11,7 +11,7 @@ class CRUD
 
 	private function connect($dbUser, $dbPass, $dbHost, $dbName)
 	{
-		$dsn = "mysql:host=" . $dbHost . ";dbname=" . $dbName;
+		$dsn = "mysql:host={$dbHost};dbname={$dbName}";
 		$this->connection  = new PDO($dsn, $dbUser, $dbPass);
 	}
 
@@ -19,26 +19,23 @@ class CRUD
 	{
 		$working = [];
 		foreach ($conditions as $condition) {
-			$workingStr = $condition[0] . " " . $condition[1] . " ";
-			if (strtolower($condition[1]) === 'like') {
-				$workingStr .= "%" . $condition[2] . "%";
+			[$column, $operator, $value] = $condition;
+			$workingStr = "{$column} {$operator} ";
+			if (strtolower($operator) === 'like') {
+				$workingStr .= "%{$value}%";
 			} else {
-				$workingStr .=  $condition[2];
+				$workingStr .= $value;
 			}
 			$working[] = $workingStr;
 		}
 		return $working;
 	}
 
-	private function getColumnArray($dataset)
-	{
-		return array_keys($dataset);
-	}
-
 	public function create($table, $fields)
 	{
 		$columns = array_keys($fields);
-		$sql = "INSERT INTO `" . $table . "` (" . implode(',', $columns) . ") VALUES (:" . implode(',:', $columns) . ")";
+		$placeholders = ':' . implode(',:', $columns);
+		$sql = "INSERT INTO `{$table}` (" . implode(',', $columns) . ") VALUES ({$placeholders})";
 		$stmt = $this->connection->prepare($sql);
 		$stmt->execute($fields);
 		return $this->connection->lastInsertId();
@@ -47,7 +44,7 @@ class CRUD
 	public function read($table, $conditions)
 	{
 		$strConditions = $this->conditionsToStrings($conditions);
-		$sql = "SELECT * FROM `" . $table . "` WHERE (" . implode(' AND ', $strConditions) . ") LIMIT 20000";
+		$sql = "SELECT * FROM `{$table}` WHERE (" . implode(' AND ', $strConditions) . ") LIMIT 20000";
 		$stmt = $this->connection->prepare($sql);
 		$stmt->execute();
 		$return = [];
@@ -60,12 +57,11 @@ class CRUD
 	public function update($table, $fields, $conditions)
 	{
 		$strConditions = $this->conditionsToStrings($conditions);
-		$columns = array_keys($fields);
 		$frames = [];
-		foreach ($columns as $column) {
-			$frames[] = $column . "=:" . $column;
+		foreach (array_keys($fields) as $column) {
+			$frames[] = "{$column}=:{$column}";
 		}
-		$sql = "UPDATE `" . $table . "` SET " . implode(',', $frames) . " WHERE (" . implode(' AND ', $strConditions) . ") LIMIT 20000";
+		$sql = "UPDATE `{$table}` SET " . implode(',', $frames) . " WHERE (" . implode(' AND ', $strConditions) . ") LIMIT 20000";
 		$stmt = $this->connection->prepare($sql);
 		$stmt->execute($fields);
 	}
@@ -73,7 +69,7 @@ class CRUD
 	public function delete($table, $conditions)
 	{
 		$strConditions = $this->conditionsToStrings($conditions);
-		$sql = "DELETE FROM `" . $table . "` WHERE (" . implode(' AND ', $strConditions) . ") LIMIT 20000";
+		$sql = "DELETE FROM `{$table}` WHERE (" . implode(' AND ', $strConditions) . ") LIMIT 20000";
 		$stmt = $this->connection->prepare($sql);
 		$stmt->execute();
 	}
