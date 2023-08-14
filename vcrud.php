@@ -7,7 +7,7 @@
 
 // Version 1.0.0
 
-class CRUD
+class VCRUD
 {
 	private $connection;	// Stores the PDO connection so we don't have to pass it every time
 	private $maxRows = 20000;
