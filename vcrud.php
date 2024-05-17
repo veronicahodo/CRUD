@@ -5,12 +5,12 @@
 // Basic class for handing CRUD database interactions.  Designed to
 // be extended for whatever the intended use would be
 
-// Version 1.0.1
+// Version 1.1.0
 
 
-class VCRUD
+class Vcrud
 {
-	private $connection;	// Stores the PDO connection so we don't have to pass it every time
+	public PDO $connection;	// Stores the PDO connection so we don't have to pass it every time
 	private $maxRows = 20000;
 
 	public function __construct($dbUser, $dbPass, $dbHost, $dbName)

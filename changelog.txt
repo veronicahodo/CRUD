@@ -3,6 +3,7 @@ VCRUD changelog
 Version:
 ---------
 
+    1.1.0 : Made the PDO connection itself public
     1.0.1 : Fixed the quotations on the conditionsToStrings functions.
     1.0.0 : First "production" ready version, even though it hadn't
         been tested yet.
