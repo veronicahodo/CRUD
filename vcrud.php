@@ -1,16 +1,39 @@
 <?php
 
-// vcrud.php
+/*
 
-// Basic class for handing CRUD database interactions.  Designed to
-// be extended for whatever the intended use would be
+vcrud.php
 
-// Version 1.1.0
+Version 1.2.0 - 2024/06/07
 
+I created this (with the help of OpenAI) to use with all my various API
+projects I work on. This handles basic CRUD operations against the
+database. This is surprisingly flexible after adding the AND/OR options
+to the read command.
+
+functions:
+    create(table,fields): takes an associative array and tries to insert
+        it into the database under the provided table. Returns false if
+        it fails, and the last inserted ID if successful.
+
+    read(table,conditions,[orOperand]): Pulls records from the database 
+        that match "conditions". Conditions are a three-part array 
+        containing a field name, a string operand (=,<,>,LIKE,etc.) and 
+        a value. Default is to AND the conditions, but setting orOperand
+        to true will OR the conditions
+
+    update(table,fields,conditions,[orOperand]): Updates records from the database
+        matching conditions with the values from the associated array
+        fields.
+
+    delete(table,conditions,[orOperand]): Removes records from the database that meet
+        conditions.
+
+*/
 
 class Vcrud
 {
-	public PDO $connection;	// Stores the PDO connection so we don't have to pass it every time
+	public PDO $connection;    // Stores the PDO connection so we don't have to pass it every time
 	private $maxRows = 20000;
 
 	public function __construct($dbUser, $dbPass, $dbHost, $dbName)
@@ -29,7 +52,7 @@ class Vcrud
 
 	private function conditionsToStrings($conditions)
 	{
-		// turns the datasets [column,operand,value] into the SQL string formatted
+		// turns the datasets [column, operand, value] into the SQL string formatted
 		// markup
 		$working = [];
 		foreach ($conditions as $condition) {
@@ -61,13 +84,10 @@ class Vcrud
 	public function read($table, $conditions, $orOperand = false)
 	{
 		// reads up to 20000 rows and returns them based on conditions. 
-		// Conditions are formatted [column,operand,value]
+		// Conditions are formatted [column, operand, value]
 		$strConditions = $this->conditionsToStrings($conditions);
-		if ($orOperand) {
-			$sql = "SELECT * FROM `{$table}` WHERE (" . implode(' OR ', $strConditions) . ") LIMIT " . $this->maxRows;
-		} else {
-			$sql = "SELECT * FROM `{$table}` WHERE (" . implode(' AND ', $strConditions) . ") LIMIT " . $this->maxRows;
-		}
+		$logicalOperator = $orOperand ? ' OR ' : ' AND ';
+		$sql = "SELECT * FROM `{$table}` WHERE (" . implode($logicalOperator, $strConditions) . ") LIMIT " . $this->maxRows;
 		$stmt = $this->connection->prepare($sql);
 		$stmt->execute();
 		$return = [];
@@ -77,33 +97,35 @@ class Vcrud
 		return $return;
 	}
 
-	public function update($table, $fields, $conditions)
+	public function update($table, $fields, $conditions, $orOperand = false)
 	{
-		// upates up to 20000 rows with the data from fields.
-		// Conditions are formated based on [column,operand,value]
+		// updates up to 20000 rows with the data from fields.
+		// Conditions are formatted based on [column, operand, value]
 		$strConditions = $this->conditionsToStrings($conditions);
 		$frames = [];
 		foreach (array_keys($fields) as $column) {
 			$frames[] = "{$column}=:{$column}";
 		}
-		$sql = "UPDATE `{$table}` SET " . implode(',', $frames) . " WHERE (" . implode(' AND ', $strConditions) . ") LIMIT " . $this->maxRows;
+		$logicalOperator = $orOperand ? ' OR ' : ' AND ';
+		$sql = "UPDATE `{$table}` SET " . implode(',', $frames) . " WHERE (" . implode($logicalOperator, $strConditions) . ") LIMIT " . $this->maxRows;
 		$stmt = $this->connection->prepare($sql);
 		$stmt->execute($fields);
 	}
 
-	public function delete($table, $conditions)
+	public function delete($table, $conditions, $orOperand = false)
 	{
 		// deletes up to 20000 rows that meet the conditions
-		// Conditions are formatted based on [colum,operand,value]
+		// Conditions are formatted based on [column, operand, value]
 		$strConditions = $this->conditionsToStrings($conditions);
-		$sql = "DELETE FROM `{$table}` WHERE (" . implode(' AND ', $strConditions) . ") LIMIT " . $this->maxRows;
+		$logicalOperator = $orOperand ? ' OR ' : ' AND ';
+		$sql = "DELETE FROM `{$table}` WHERE (" . implode($logicalOperator, $strConditions) . ") LIMIT " . $this->maxRows;
 		$stmt = $this->connection->prepare($sql);
 		$stmt->execute();
 	}
 
 	public function close()
 	{
-		// as for good cleanup,this should be called before exiting
+		// as for good cleanup, this should be called before exiting
 		$this->connection = null;
 	}
 }
