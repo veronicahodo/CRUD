@@ -9,6 +9,8 @@ databases.
 
 ## Usage
 
+`require_once('vcrud.php');`
+
 `$crud = new Vcrud($username,$password,$dbhost,$dbname)` to create the object and connect to the database as well.
 
 `$crud->create($table,$fields)` inserts into the database. Fields is just an associated array
