@@ -4,7 +4,7 @@
 
 vcrud.php
 
-Version 1.2.0 - 2024/06/07
+Version 1.3.0 - 2024/08/06
 
 I created this (with the help of OpenAI) to use with all my various API
 projects I work on. This handles basic CRUD operations against the
@@ -16,11 +16,12 @@ functions:
         it into the database under the provided table. Returns false if
         it fails, and the last inserted ID if successful.
 
-    read(table,conditions,[orOperand]): Pulls records from the database 
+    read(table,conditions,[orOperand],[orderBy]): Pulls records from the database 
         that match "conditions". Conditions are a three-part array 
         containing a field name, a string operand (=,<,>,LIKE,etc.) and 
         a value. Default is to AND the conditions, but setting orOperand
-        to true will OR the conditions
+        to true will OR the conditions. Setting orderBy passes the value
+		at the end of the SQL statement
 
     update(table,fields,conditions,[orOperand]): Updates records from the database
         matching conditions with the values from the associated array
@@ -81,13 +82,17 @@ class Vcrud
 		return $this->connection->lastInsertId();
 	}
 
-	public function read($table, $conditions, $orOperand = false)
+	public function read($table, $conditions, $orOperand = false, $orderBy = null)
 	{
 		// reads up to 20000 rows and returns them based on conditions. 
 		// Conditions are formatted [column, operand, value]
 		$strConditions = $this->conditionsToStrings($conditions);
 		$logicalOperator = $orOperand ? ' OR ' : ' AND ';
-		$sql = "SELECT * FROM `{$table}` WHERE (" . implode($logicalOperator, $strConditions) . ") LIMIT " . $this->maxRows;
+		$sql = "SELECT * FROM `{$table}` WHERE (" . implode($logicalOperator, $strConditions) . ")";
+		if ($orderBy) {
+			$sql .= " ORDER BY {$orderBy}";
+		}
+		$sql .= " LIMIT " . $this->maxRows;
 		$stmt = $this->connection->prepare($sql);
 		$stmt->execute();
 		$return = [];
