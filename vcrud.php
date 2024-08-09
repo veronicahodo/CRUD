@@ -4,7 +4,7 @@
 
 vcrud.php
 
-Version 1.3.0 - 2024/08/06
+Version 1.4.0 - 2024/08/09
 
 I created this (with the help of OpenAI) to use with all my various API
 projects I work on. This handles basic CRUD operations against the
