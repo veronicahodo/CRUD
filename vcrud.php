@@ -128,6 +128,24 @@ class Vcrud
 		$stmt->execute();
 	}
 
+	public function get($table, $conditions, $orOperand = false)
+	{
+		// Wrapper for the read function, aligned with the HTTP GET method
+		return $this->read($table, $conditions, $orOperand);
+	}
+
+	public function post($table, $fields)
+	{
+		// Wrapper for the create function, aligned with the HTTP POST method
+		return $this->create($table, $fields);
+	}
+
+	public function put($table, $fields, $conditions, $orOperand = false)
+	{
+		// Wrapper for the update function, aligned with the HTTP PUT method
+		return $this->update($table, $fields, $conditions, $orOperand);
+	}
+
 	public function close()
 	{
 		// as for good cleanup, this should be called before exiting

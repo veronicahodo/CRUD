@@ -3,6 +3,7 @@ VCRUD changelog
 Version:
 ---------
 
+    1.4.0 : Added wrappers to mimic RESTful commands (get,put,post)
     1.3.0 : Added ordering support to read.
             Updated README.md to actually have instructions.
     1.2.0 : Updated update and delete to add OR operation.
