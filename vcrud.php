@@ -128,10 +128,10 @@ class Vcrud
 		$stmt->execute();
 	}
 
-	public function get($table, $conditions, $orOperand = false)
+	public function get($table, $conditions, $orOperand = false, $orderBy = null)
 	{
 		// Wrapper for the read function, aligned with the HTTP GET method
-		return $this->read($table, $conditions, $orOperand);
+		return $this->read($table, $conditions, $orOperand, $orderBy);
 	}
 
 	public function post($table, $fields)
